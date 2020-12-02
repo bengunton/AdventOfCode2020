@@ -38,12 +38,21 @@ func main() {
 
 	validCount := 0
 	for _, password := range(passwordsToCheck) {
-		if password.isValid (){
+		if password.isValidBySledPolicy(){
 			validCount++
 		}
 	}
 	
-	fmt.Printf("Valid passwords: %d\n", validCount)
+	fmt.Printf("Valid passwords by sled policy: %d\n", validCount)
+
+	validCount = 0
+	for _, password := range(passwordsToCheck) {
+		if password.isValidByTobogganPolicy(){
+			validCount++
+		}
+	}
+	
+	fmt.Printf("Valid passwords by toboggan policy: %d\n", validCount)
 }
 
 func parsePasswordCheck(input string) (passwordCheck, error) {
@@ -66,7 +75,16 @@ func parsePasswordCheck(input string) (passwordCheck, error) {
 	return passwordCheck{x, y, characterToCheck, password}, nil
 }
 
-func (p *passwordCheck) isValid() bool {
+func (p *passwordCheck) isValidBySledPolicy() bool {
 	count := strings.Count(p.password, p.letterToCheck)
 	return count >= p.x && count <= p.y
+}
+
+func (p *passwordCheck) isValidByTobogganPolicy() bool {
+	passwordSlice := p.password[(p.x -1):(p.y)]
+
+	hasPrefix := strings.HasPrefix(passwordSlice, p.letterToCheck)
+	hasSuffix := strings.HasSuffix(passwordSlice, p.letterToCheck)
+
+	return (hasPrefix && !hasSuffix || hasSuffix && !hasPrefix)
 }
