@@ -20,12 +20,22 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	var max uint = 0
+	foundPasses := make(map[uint] bool)	
 
 	for scanner.Scan() {
 		boardingPass := scanner.Text()
 		id := calculateId(boardingPass)
+
 		if id > max {
 			max = id
+		}
+
+		foundPasses[id] = true
+	}
+
+	for id, _ := range(foundPasses) {
+		if (!foundPasses[id + 1] && foundPasses[id + 2]) {
+			fmt.Println("Found empty space ", (id + 1))
 		}
 	}
 
