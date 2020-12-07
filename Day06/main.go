@@ -12,8 +12,6 @@ func check(e error) {
 	}
 }
 
-var GroupRegex = "([a-z]+\r\n)+\r\n"
-
 func main() {
 	file, err := os.Open("input")
 	check(err)
