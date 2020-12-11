@@ -37,25 +37,65 @@ func main() {
 		instructions = append(instructions, instruction{components[0], offset})
 	}
 
+	fixedInstructions := make([]instruction, len(instructions))
+
+	for i, _ := range(instructions) {
+		_ = copy(fixedInstructions, instructions)
+
+		if flipInstruction(i, fixedInstructions) {
+			acc, isFixed := runProgram(fixedInstructions)
+
+			if (isFixed) {
+				fmt.Printf("The accumulator is: %d\n", acc)
+				break
+			}
+		}
+	}
+
+}
+
+func printInstructions(is []instruction) {
+	for _, inst := range(is) {
+		fmt.Println(inst)
+
+	}
+}
+
+func flipInstruction(index int, is []instruction) bool {
+	inst := is[index]
+
+	switch inst.code {
+	case "nop":
+		is[index] = instruction{"jmp", inst.offset}
+		return true
+	case "jmp":
+		is[index] = instruction{"nop", inst.offset}
+		return true
+	default:
+		return false 
+	}
+
+}
+
+func runProgram(program []instruction) (int, bool) {
 	seenInstructions := make(map[int]bool)
 
 	i := 0
 	acc := 0
 	for seenInstructions[i] != true {
 		seenInstructions[i] = true
-		i, acc = processInstruction(i, acc)
+		i, acc = processInstruction(i, acc, program)
+
+		if i == (len(program)) {
+			return acc, true
+		}
 	}
 
-	fmt.Printf("The accumulator is: %d\n", acc)
-
-	// for _, inst := range(instructions) {
-	// 	fmt.Println(inst)
-
-	// }
+	return acc, false
 }
 
-func processInstruction(index int, acc int) (int, int) {
-	inst := instructions[index]
+func processInstruction(index int, acc int, program []instruction) (int, int) {
+	inst := program[index]
 
 	switch (inst.code) {
 	case "nop":
