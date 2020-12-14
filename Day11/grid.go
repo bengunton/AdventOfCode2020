@@ -13,12 +13,12 @@ func (grid Grid) applyRules() (Grid, bool) {
 		for j, square := range(row) {
 			switch rune(square) {
 			case 'L':
-				if grid.countAdjacentAndSelf(i, j, '#') == 0 {
+				if grid.countVisible(i, j, '#') == 0 {
 					hasChanged = true
 					nextGrid[i][j] = '#'
 				}
 			case '#':
-				if grid.countAdjacentAndSelf(i, j, '#') >= 5 {
+				if grid.countVisible(i, j, '#') >= 5 {
 					hasChanged = true
 					nextGrid[i][j] = 'L'
 				}
@@ -47,6 +47,36 @@ func (grid Grid) countAdjacentAndSelf(y int, x int, charToCount rune) int {
 	return count
 }
 
+func (grid Grid) countVisible(y int, x int, charToCount rune) int {
+	sum := 0
+	sum += grid.countInOffset(y, x, -1, -1, charToCount)
+	sum += grid.countInOffset(y, x, -1, 0, charToCount)
+	sum += grid.countInOffset(y, x, -1, 1, charToCount)
+	sum += grid.countInOffset(y, x, 0, -1, charToCount)
+	sum += grid.countInOffset(y, x, 0, 1, charToCount)
+	sum += grid.countInOffset(y, x, 1, -1, charToCount)
+	sum += grid.countInOffset(y, x, 1, 0, charToCount)
+	sum += grid.countInOffset(y, x, 1, 1, charToCount)
+	return sum
+}
+
+func (grid Grid) countInOffset(startY, startX, yOff, xOff int, charToCount rune) int {
+	nextY := startY + yOff
+	nextX := startX + xOff
+
+	if nextY < 0 || nextY >= len(grid) || nextX < 0 || nextX >= len(grid[0]) {
+		return 0
+	}
+	
+	switch rune(grid[nextY][nextX]) {
+	case '.':
+		return grid.countInOffset(nextY, nextX, yOff, xOff, charToCount)
+	case charToCount:
+		return 1
+	default:
+		return 0
+	}
+}
 func (template Grid) copyGrid() Grid {
 	nextGrid := make(Grid, len(template))
 	for i, _ := range(template) {
